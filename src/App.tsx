@@ -9,6 +9,10 @@ import "@/lib/i18n";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Search from "./pages/Search";
+import ClinicDetail from "./pages/ClinicDetail";
+import BookAppointment from "./pages/BookAppointment";
+import Appointments from "./pages/Appointments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +28,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/clinic/:id" element={<ClinicDetail />} />
+            <Route path="/book/:clinicId/:doctorId" element={<BookAppointment />} />
+            <Route path="/appointments" element={<Appointments />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
