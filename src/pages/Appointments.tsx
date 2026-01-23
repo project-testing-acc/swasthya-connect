@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -7,14 +8,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { RescheduleDialog } from "@/components/appointments/RescheduleDialog";
+import { CancelDialog } from "@/components/appointments/CancelDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Calendar,
   Clock,
   MapPin,
-  User,
   Video,
   Search,
   LogIn,
@@ -34,7 +36,10 @@ const statusColors: Record<AppointmentStatus, string> = {
 export default function Appointments() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, loading: authLoading } = useAuth();
+  const [rescheduleAppointment, setRescheduleAppointment] = useState<any>(null);
+  const [cancelAppointment, setCancelAppointment] = useState<any>(null);
 
   const { data: appointments, isLoading } = useQuery({
     queryKey: ["appointments", user?.id],
@@ -157,10 +162,10 @@ export default function Appointments() {
 
         {appointment.status === "pending" && (
           <div className="mt-4 flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setRescheduleAppointment(appointment)}>
               {t("appointment.reschedule")}
             </Button>
-            <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive">
+            <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={() => setCancelAppointment(appointment)}>
               {t("appointment.cancelAppointment")}
             </Button>
           </div>
@@ -229,6 +234,20 @@ export default function Appointments() {
             )}
           </TabsContent>
         </Tabs>
+
+        <RescheduleDialog
+          open={!!rescheduleAppointment}
+          onOpenChange={(open) => !open && setRescheduleAppointment(null)}
+          appointment={rescheduleAppointment}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["appointments"] })}
+        />
+
+        <CancelDialog
+          open={!!cancelAppointment}
+          onOpenChange={(open) => !open && setCancelAppointment(null)}
+          appointment={cancelAppointment}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["appointments"] })}
+        />
       </div>
     </MainLayout>
   );
