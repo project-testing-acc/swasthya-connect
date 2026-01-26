@@ -73,6 +73,7 @@ const en = {
   booking: {
     selectDate: "Select Date",
     selectTime: "Select Time Slot",
+    selectSlot: "Select a time slot",
     selectType: "Appointment Type",
     inPerson: "In-Person Visit",
     teleconsult: "Video Consultation",
@@ -149,20 +150,6 @@ const en = {
     saveChanges: "Save Changes",
     signOut: "Sign Out",
     signOutDescription: "Sign out of your account on this device",
-  },
-  booking: {
-    selectDate: "Select Date",
-    selectTime: "Select Time Slot",
-    selectSlot: "Select a time slot",
-    selectType: "Appointment Type",
-    inPerson: "In-Person Visit",
-    teleconsult: "Video Consultation",
-    confirmBooking: "Confirm Booking",
-    payNow: "Pay Now",
-    bookingConfirmed: "Booking Confirmed!",
-    tokenNumber: "Your Token Number",
-    appointmentDetails: "Appointment Details",
-    noSlotsAvailable: "No slots available for this date",
   },
 };
 
