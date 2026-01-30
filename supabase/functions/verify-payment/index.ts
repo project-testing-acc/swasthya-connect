@@ -38,6 +38,17 @@ serve(async (req) => {
     logStep("Session retrieved", { status: session.payment_status });
 
     if (session.payment_status === "paid") {
+      // Get appointment to find user_id
+      const { data: appointmentData, error: fetchError } = await supabaseClient
+        .from("appointments")
+        .select("patient_id")
+        .eq("id", appointmentId)
+        .single();
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch appointment: ${fetchError.message}`);
+      }
+
       // Update appointment status
       const { error: appointmentError } = await supabaseClient
         .from("appointments")
@@ -49,16 +60,20 @@ serve(async (req) => {
       }
       logStep("Appointment updated to confirmed");
 
-      // Create payment record
+      // Create payment record using correct column names
       const { error: paymentError } = await supabaseClient
         .from("payments")
         .insert({
+          user_id: appointmentData.patient_id,
           appointment_id: appointmentId,
           amount: session.amount_total ? session.amount_total / 100 : 0,
           currency: session.currency?.toUpperCase() || "INR",
-          status: "completed",
-          payment_method: "stripe",
-          transaction_id: session.payment_intent as string,
+          status: "success",
+          gateway: "stripe",
+          metadata: {
+            stripe_session_id: sessionId,
+            stripe_payment_intent: session.payment_intent,
+          },
         });
 
       if (paymentError) {

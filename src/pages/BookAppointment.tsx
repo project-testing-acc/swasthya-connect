@@ -111,7 +111,8 @@ export default function BookAppointment() {
         .toString()
         .padStart(2, "0")}`;
 
-      const { data, error } = await supabase
+      // First create appointment with pending status
+      const { data: appointmentData, error: appointmentError } = await supabase
         .from("appointments")
         .insert({
           patient_id: user.id,
@@ -127,11 +128,33 @@ export default function BookAppointment() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (appointmentError) throw appointmentError;
 
-      setTokenNumber(data.token_number);
-      setBookingSuccess(true);
-      toast.success(t("booking.bookingConfirmed"));
+      // Now redirect to Stripe for payment
+      const displayTime = availableSlots.find(s => s.time === selectedSlot)?.display || selectedSlot;
+      
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
+        "create-payment",
+        {
+          body: {
+            appointmentId: appointmentData.id,
+            amount: clinic.consultation_fee,
+            clinicName: clinic.name,
+            doctorName: doctor.name,
+            appointmentDate: format(selectedDate, "MMMM d, yyyy"),
+            appointmentTime: displayTime,
+          },
+        }
+      );
+
+      if (paymentError) throw paymentError;
+
+      if (paymentData?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = paymentData.url;
+      } else {
+        throw new Error("Failed to create payment session");
+      }
     } catch (error: any) {
       console.error("Booking error:", error);
       toast.error(error.message || "Failed to book appointment");
@@ -403,10 +426,10 @@ export default function BookAppointment() {
                   {isBooking ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
-                      Booking...
+                      Processing...
                     </>
                   ) : (
-                    t("booking.confirmBooking")
+                    t("booking.payNow")
                   )}
                 </Button>
 
