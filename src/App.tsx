@@ -13,6 +13,7 @@ import Search from "./pages/Search";
 import ClinicDetail from "./pages/ClinicDetail";
 import BookAppointment from "./pages/BookAppointment";
 import Appointments from "./pages/Appointments";
+import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/clinic/:id" element={<ClinicDetail />} />
             <Route path="/book/:clinicId/:doctorId" element={<BookAppointment />} />
             <Route path="/appointments" element={<Appointments />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
